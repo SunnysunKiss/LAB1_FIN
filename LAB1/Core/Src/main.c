@@ -131,7 +131,9 @@ int main(void)
 	  }
 	  switch(state)
 	  {
-	  case 0: if(ButtonMatrix == 512 && buttonCheck == 0) //6
+	  case 0:
+		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, 0);
+		  if(ButtonMatrix == 512 && buttonCheck == 0) //6
 	  {
 		  state = 1;
 	  }
