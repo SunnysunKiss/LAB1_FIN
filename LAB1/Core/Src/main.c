@@ -42,7 +42,31 @@
 UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
+//create struct protpin
+typedef struct {
+	GPIO_TypeDef* PORT;
+	uint16_t PIN;
+}PortPin;
 
+PortPin R[4] =
+{
+		{GPIOA,GPIO_PIN_10},
+		{GPIOB,GPIO_PIN_3},
+		{GPIOB,GPIO_PIN_5},
+		{GPIOB,GPIO_PIN_4}
+};
+
+PortPin L[4] =
+{
+		{GPIOA,GPIO_PIN_9},
+		{GPIOC,GPIO_PIN_7},
+		{GPIOB,GPIO_PIN_6},
+		{GPIOA,GPIO_PIN_7}
+};
+
+uint16_t ButtonMatrix = 0;  //keep all the buttons globle
+uint16_t buttonCheck = 0;
+int state = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -50,7 +74,7 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
 /* USER CODE BEGIN PFP */
-
+void ReadMatrixButton_1Row();
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -98,6 +122,124 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+	  static uint32_t timestamp = 0;
+	  // 100 time per 1 second || 1 time per second = 1/100 = 0.01 s = 10 ms
+	  if(HAL_GetTick() > timestamp)
+	  {
+		  timestamp = HAL_GetTick() + 10; // +10 ms
+		  ReadMatrixButton_1Row();
+	  }
+	  switch(state)
+	  {
+	  case 0: if(ButtonMatrix == 512 && buttonCheck == 0) //6
+	  {
+		  state = 1;
+	  }
+	  else if(ButtonMatrix != 0 &&buttonCheck == 0)
+	  {
+		  state = 13;
+	  }
+	  break;
+
+	  case 1: if(ButtonMatrix == 2 && buttonCheck == 0){ //4
+		  state = 2;
+	  }
+	  else if(ButtonMatrix != 0 &&buttonCheck == 0)
+	 	  {
+	 		  state = 13;
+	 	  }
+	  		  break;
+	  case 2:if(ButtonMatrix == 1024 && buttonCheck == 0){ //3
+		  state = 3;
+	  }
+	  else if(ButtonMatrix != 0 && buttonCheck == 0)
+	 	  {
+	 		  state = 13;
+	 	  }break;
+	  case 3:if(ButtonMatrix == 2 && buttonCheck == 0){ //4
+	  		  state = 4;
+	  	  }
+	  	  else if(ButtonMatrix != 0 && buttonCheck == 0)
+	  	 	  {
+	  	 		  state = 13;
+	  	 	  }break;
+	  case 4:if(ButtonMatrix == 8 && buttonCheck == 0){ //0
+	  		  state = 5;
+	  	  }
+	  	  else if(ButtonMatrix != 0 && buttonCheck == 0)
+	  	 	  {
+	  	 		  state = 13;
+	  	 	  }break;
+	  case 5:if(ButtonMatrix == 32 && buttonCheck == 0){ //5
+	  		  state = 6;
+	  	  }
+	  	  else if(ButtonMatrix != 0 && buttonCheck == 0)
+	  	 	  {
+	  	 		  state = 13;
+	  	 	  }break;
+	  case 6:if(ButtonMatrix == 8 && buttonCheck == 0){ //0
+	  		  state = 7;
+	  	  }
+	  	  else if(ButtonMatrix != 0 && buttonCheck == 0)
+	  	 	  {
+	  	 		  state = 13;
+	  	 	  }break;
+	  case 7:if(ButtonMatrix == 8 && buttonCheck == 0){ //0
+	  	  		  state = 8;
+	  	  	  }
+	  	  	  else if(ButtonMatrix != 0 && buttonCheck == 0)
+	  	  	 	  {
+	  	  	 		  state = 13;
+	  	  	 	  }break;
+	  case 8:if(ButtonMatrix == 8 && buttonCheck == 0){ //0
+	  	  		  state = 9;
+	  	  	  }
+	  	  	  else if(ButtonMatrix != 0 && buttonCheck == 0)
+	  	  	 	  {
+	  	  	 		  state = 13;
+	  	  	 	  }break;
+	  case 9:if(ButtonMatrix == 32 && buttonCheck == 0){ //5
+	  	  		  state = 10;
+	  	  	  }
+	  	  	  else if(ButtonMatrix != 0 && buttonCheck == 0)
+	  	  	 	  {
+	  	  	 		  state = 13;
+	  	  	 	  }break;
+	  case 10:if(ButtonMatrix == 512 && buttonCheck == 0){ //6
+	  	  		  state = 11;
+	  	  	  }
+	  	  	  else if(ButtonMatrix != 0 && buttonCheck == 0)
+	  	  	 	  {
+	  	  	 		  state = 13;
+	  	  	 	  }break;
+	  case 11:if(ButtonMatrix == 32768 && buttonCheck == 0){ //ok
+	  	  		  state = 11;
+	  	  		  //led
+	  	  		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, 1);
+	  	  	  }
+	  	  	  else if(ButtonMatrix != 0 && buttonCheck == 0)
+	  	  	 	  {
+	  	  	 		  state = 13;
+	  	  	 	  }break;
+	  case 12:if(ButtonMatrix == 4096 && buttonCheck == 0){ //clear
+	  	  		  state = 0;
+	  	  	  }
+	  	  	  else if(ButtonMatrix != 0 && buttonCheck == 0)
+	  	  	 	  {
+	  	  	 		  state = 13;
+	  	  	 	  }break;
+	  case 13:if(ButtonMatrix == 4096 && buttonCheck == 0){ //loop
+	  	  		  state = 0;
+	  	  	  }
+	  	  	  else if(ButtonMatrix != 0 && buttonCheck == 0)
+	  	  	 	  {
+	  	  	 		  state = 13;
+	  	  	 	  }break;
+
+	  }
+	  buttonCheck = ButtonMatrix;
+
+
   }
   /* USER CODE END 3 */
 }
@@ -197,7 +339,10 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, LD2_Pin|GPIO_PIN_10, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5, GPIO_PIN_RESET);
 
   /*Configure GPIO pin : B1_Pin */
   GPIO_InitStruct.Pin = B1_Pin;
@@ -212,10 +357,79 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(LD2_GPIO_Port, &GPIO_InitStruct);
 
+  /*Configure GPIO pins : PA7 PA9 */
+  GPIO_InitStruct.Pin = GPIO_PIN_7|GPIO_PIN_9;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : PC7 */
+  GPIO_InitStruct.Pin = GPIO_PIN_7;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : PA10 */
+  GPIO_InitStruct.Pin = GPIO_PIN_10;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : PB3 PB4 PB5 */
+  GPIO_InitStruct.Pin = GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : PB6 */
+  GPIO_InitStruct.Pin = GPIO_PIN_6;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
 }
 
 /* USER CODE BEGIN 4 */
+void ReadMatrixButton_1Row() {
+    static uint8_t X = 0;
+    register int i;
+    //check row (first time anything will pass because all R[X] set as high. it can start row check at the second time by set R[1] as low )
+    for (i = 0; i < 4; i++) {
+        if (HAL_GPIO_ReadPin(L[i].PORT, L[i].PIN)) {
+            ButtonMatrix &= ~(1 << (X * 4 + i));
+            //i = 0 x = 0
+            //~(1 << (0*4 + 0))
+            //~0b0000000000000001
+            // 0b1111111111111110 & ButtonMatrix
+            //=0b***************0
+            //if noting change (doesn't pass button) ButtonMatrix will always 0b0000000000000000 by this step
+            //it do right to left repeat
+        } else {
+            ButtonMatrix |= 1 << (X * 4 + i);
 
+            //i = 0 x = 0
+            //(1 <<(shift) (0*4 + 0))
+            // 0b0000000000000001
+            // 0b0000000000000001 | ButtonMatrix
+            //=0b***************1
+            //if button is passed ButtonMatrix will get 1 to some bit by this step.
+            //it can have double 1 in some bit like 0b0001000000001000 but for human response it hard to be like that (it check and shift bit every 10 ms.)
+        }
+    }
+    //change column
+    HAL_GPIO_WritePin(R[X].PORT, R[X].PIN, 1); //reset R[x] to 1 Floating
+    HAL_GPIO_WritePin(R[(X + 1) % 4].PORT, R[(X + 1) % 4].PIN, 0); //Let R[X] to 0 by column (x start at 0 if it check all L[i] then do next column)
+    X++; // because 1 set of i plus 1 to x
+    X %= 4; // if X = 4 then x = 0
+    /*---------------------------------STEP of Work---------------------------------------
+     1. check row of column x (form i = 0 to i = 3)
+     2. reset column x (R[x]) to high
+     3. set next column R[x+1] to low *if x = 4 then x = 0
+     repeat...
+    */
+}
 /* USER CODE END 4 */
 
 /**
