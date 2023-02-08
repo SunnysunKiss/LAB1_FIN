@@ -1408,7 +1408,7 @@ void ReadMatrixButton_1Row() {
  8000b3c:	b598      	push	{r3, r4, r7, lr}
  8000b3e:	af00      	add	r7, sp, #0
     static uint8_t X = 0;
-    register int i;
+    register int i; //resgis var in CPU register (it just faster to read)
     //check row (first time anything will pass because all R[X] set as high. it can start row check at the second time by set R[1] as low )
     for (i = 0; i < 4; i++) {
  8000b40:	2400      	movs	r4, #0

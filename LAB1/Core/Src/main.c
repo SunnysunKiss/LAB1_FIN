@@ -21,7 +21,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+// Anchisa Piriyakrit 56
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -396,7 +396,7 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN 4 */
 void ReadMatrixButton_1Row() {
     static uint8_t X = 0;
-    register int i;
+    register int i; //resgis var in CPU register (it just faster to read)
     //check row (first time anything will pass because all R[X] set as high. it can start row check at the second time by set R[1] as low )
     for (i = 0; i < 4; i++) {
         if (HAL_GPIO_ReadPin(L[i].PORT, L[i].PIN)) {
